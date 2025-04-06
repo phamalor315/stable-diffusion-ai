@@ -1,0 +1,43 @@
+```python
+from flask import Flask, request, render_template
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
+import requests
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'  # Set a secret key for CSRF protection
+
+# Form class for user input
+class ImagePromptForm(FlaskForm):
+    prompt = StringField('Enter your image prompt:', validators=[DataRequired()])
+    submit = SubmitField('Generate Image')
+
+# Route for home page
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    form = ImagePromptForm()
+    image_url = None
+    if form.validate_on_submit():
+        prompt = form.prompt.data
+        image_url = generate_image(prompt)  # Call function to generate image
+    return render_template('index.html', form=form, image_url=image_url)
+
+# Function to generate image from text prompt
+def generate_image(prompt):
+    # Replace with the actual API URL and key for image generation
+    api_url = 'https://api.your-image-generator.com/generate'
+    headers = {'Authorization': 'Bearer your_api_key'}
+    data = {'prompt': prompt}
+
+    response = requests.post(api_url, headers=headers, json=data)
+    
+    if response.status_code == 200:
+        return response.json().get('image_url')  # Extracting image URL from the response
+    else:
+        return None  # Handle error case
+
+# Run the app
+if __name__ == '__main__':
+    app.run(debug=True)  # Enable debug mode for development
+```
